@@ -7,7 +7,7 @@
             Console.WriteLine("Hellow Human! -_-");
             Console.WriteLine("I gonna pass a few requests to Northwind Web API Service.");
 
-            await RequestHelper.HandleGetRequest<IEnumerable<Product>>(
+            await RequestHelper.GetAsync<IEnumerable<Product>>(
                 "http://localhost:10000/api/products?pageNumber=2&categoryId=1",
                 list =>
                 {
@@ -18,13 +18,13 @@
                 });
             int addedProductId = 0;
 
-            await RequestHelper.HandleRequest<int>("http://localhost:10000/api/products/", HttpMethod.Post,
+            await RequestHelper.SendAsync<int>("http://localhost:10000/api/products/", HttpMethod.Post,
                 new Product(0, "Product", 1, 1, "some", 10, 1, 1, 1, true),
                 id => addedProductId = id);
 
-            await RequestHelper.HandleGetRequest<Product>($"http://localhost:10000/api/products/{addedProductId}", product => Console.WriteLine(product));
+            await RequestHelper.GetAsync<Product>($"http://localhost:10000/api/products/{addedProductId}", product => Console.WriteLine(product));
 
-            await RequestHelper.HandleRequest<string>($"http://localhost:10000/api/products/{addedProductId}", HttpMethod.Delete, null, _ => Console.WriteLine("Product's gone. :D"));
+            await RequestHelper.SendAsync<string>($"http://localhost:10000/api/products/{addedProductId}", HttpMethod.Delete, null, _ => Console.WriteLine("Product's gone. :D"));
 
         }
     }

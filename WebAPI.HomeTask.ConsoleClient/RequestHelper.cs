@@ -8,7 +8,7 @@ namespace WebAPI.HomeTask.ConsoleClient
     {
         private static readonly HttpClient client = new HttpClient();
 
-        public static async Task HandleGetRequest<T>(string url, Action<T>? onSucces)
+        public static async Task GetAsync<T>(string url, Action<T>? onSucces)
         {
             var message = new HttpRequestMessage
             {
@@ -16,10 +16,10 @@ namespace WebAPI.HomeTask.ConsoleClient
                 RequestUri = new Uri(url),
             };
 
-            await HandleRequest<T>(message, onSucces);
+            await SendAsync<T>(message, onSucces);
         }
 
-        public static async Task HandleRequest<T>(string url, HttpMethod method, object? bodyObject, Action<T>? onSucces)
+        public static async Task SendAsync<T>(string url, HttpMethod method, object? bodyObject, Action<T>? onSucces)
         {
             var message = new HttpRequestMessage
             {
@@ -32,9 +32,9 @@ namespace WebAPI.HomeTask.ConsoleClient
                 message.Content = JsonContent.Create(bodyObject);
             }
 
-            await HandleRequest<T>(message, onSucces);
+            await SendAsync<T>(message, onSucces);
         }
-        public static async Task HandleRequest<T>(HttpRequestMessage message, Action<T>? onSucces)
+        public static async Task SendAsync<T>(HttpRequestMessage message, Action<T>? onSucces)
         {
             if (message is null)
             {
