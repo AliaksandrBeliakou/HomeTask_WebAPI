@@ -9,6 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI.HomeTask.ConsoleClie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{CCC5F748-E437-4023-942C-FB8F1E97D9C3}"
 	ProjectSection(SolutionItems) = preProject
+		Tools\NorthwindCreation.sql = Tools\NorthwindCreation.sql
 		Tools\start_service.cmd = Tools\start_service.cmd
 	EndProjectSection
 EndProject
