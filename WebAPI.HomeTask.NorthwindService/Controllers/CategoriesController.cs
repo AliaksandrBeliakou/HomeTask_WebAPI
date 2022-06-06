@@ -35,10 +35,11 @@ namespace WebAPI.HomeTask.NorthwindService.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] Category category)
+        public int Post([FromBody] Category category)
         {
             context.Categories.Add(category);
             context.SaveChanges();
+            return category.CategoryId;
         }
 
         [HttpPut("{id}")]

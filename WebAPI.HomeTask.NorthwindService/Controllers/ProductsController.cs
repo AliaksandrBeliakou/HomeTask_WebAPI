@@ -17,9 +17,26 @@ namespace WebAPI.HomeTask.NorthwindService.Controllers
         }
         
         [HttpGet]
-        public IEnumerable<Product>Get()
+        public IEnumerable<Product> Get([FromQuery] int? categoryId, [FromQuery] int pageNumber = 1, [FromQuery]int productsOnPage = 10)
         {
-            return context.Products;
+            if(pageNumber < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number cant be less one.");
+            }
+
+            if(productsOnPage < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(productsOnPage), "Product count on page cant be less one.");
+            }
+
+            IQueryable<Product> productQuery = context.Products;
+            if(categoryId.HasValue)
+            {
+                productQuery = productQuery.Where(p => p.CategoryID == categoryId);
+            }
+
+            productQuery = productQuery.Skip((pageNumber - 1) * productsOnPage).Take(productsOnPage);
+            return productQuery;
         }
 
         [HttpGet("{id}")]
@@ -35,10 +52,11 @@ namespace WebAPI.HomeTask.NorthwindService.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] Product product)
+        public int Post([FromBody] Product product)
         {
             context.Products.Add(product);
             context.SaveChanges();
+            return product.ProductId;
         }
 
         [HttpPut("{id}")]
