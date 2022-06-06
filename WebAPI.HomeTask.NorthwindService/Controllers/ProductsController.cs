@@ -15,22 +15,22 @@ namespace WebAPI.HomeTask.NorthwindService.Controllers
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        
+
         [HttpGet]
-        public IEnumerable<Product> Get([FromQuery] int? categoryId, [FromQuery] int pageNumber = 1, [FromQuery]int productsOnPage = 10)
+        public IEnumerable<Product> Get([FromQuery] int? categoryId, [FromQuery] int pageNumber = 1, [FromQuery] int productsOnPage = 10)
         {
-            if(pageNumber < 1)
+            if (pageNumber < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number cant be less one.");
             }
 
-            if(productsOnPage < 1)
+            if (productsOnPage < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(productsOnPage), "Product count on page cant be less one.");
             }
 
             IQueryable<Product> productQuery = context.Products;
-            if(categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 productQuery = productQuery.Where(p => p.CategoryID == categoryId);
             }

@@ -15,9 +15,9 @@ namespace WebAPI.HomeTask.NorthwindService.Controllers
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        
+
         [HttpGet]
-        public IEnumerable<Category>Get()
+        public IEnumerable<Category> Get()
         {
             return context.Categories;
         }
