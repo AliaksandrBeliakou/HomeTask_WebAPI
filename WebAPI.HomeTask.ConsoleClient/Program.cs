@@ -8,7 +8,7 @@
             Console.WriteLine("I gonna pass a few requests to Northwind Web API Service.");
 
             await RequestHelper.GetAsync<IEnumerable<Product>>(
-                "http://localhost:10000/api/products?pageNumber=2&categoryId=1",
+                "http://localhost:10000/api/products?pageNumber=2&categoryId=1&productsOnPage=4",
                 list =>
                 {
                     foreach (var item in list)

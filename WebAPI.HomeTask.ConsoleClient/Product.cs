@@ -2,7 +2,7 @@
 {
     internal record Product
     (
-        int ProductId,
+        int Id,
         string ProductName,
         int SupplierID,
         int CategoryID,
