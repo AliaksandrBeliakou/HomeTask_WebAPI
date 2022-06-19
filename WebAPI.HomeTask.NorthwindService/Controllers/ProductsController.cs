@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebAPI.HomeTask.NorthwindService.Data;
 using WebAPI.HomeTask.NorthwindService.Data.Entities;
-using WebAPI.HomeTask.NorthwindService.DataTransferObjects;
+using WebAPI.HomeTask.NorthwindService.Services.Interfaces;
+using WebAPI.HomeTask.NorthwindService.ViewModels;
 
 namespace WebAPI.HomeTask.NorthwindService.Controllers
 {
-    [Route("api/[controller]")]
+	[Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly NorthwindContext context;
+        private readonly IProductsService productsService;
 
-        public ProductsController(NorthwindContext context)
+        public ProductsController(IProductsService productsService)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.productsService = productsService ?? throw new ArgumentNullException(nameof(productsService));
         }
 
         [HttpGet]
-        public IEnumerable<Product> Get([FromQuery] int? categoryId, [FromQuery] int pageNumber = 1, [FromQuery] int productsOnPage = 10)
+        public IEnumerable<ProductVM> Get([FromQuery] int? categoryId, [FromQuery] int pageNumber = 1, [FromQuery] int productsOnPage = 10)
         {
             if (pageNumber < 1)
             {
@@ -28,71 +29,50 @@ namespace WebAPI.HomeTask.NorthwindService.Controllers
             {
                 throw new ArgumentOutOfRangeException(nameof(productsOnPage), "Product count on page cant be less one.");
             }
-
-            IQueryable<Product> productQuery = context.Products;
             if (categoryId.HasValue)
             {
-                productQuery = productQuery.Where(p => p.CategoryID == categoryId);
+                return productsService.GetProductsByCategory(categoryId.Value, pageNumber, productsOnPage);
             }
 
-            productQuery = productQuery.Skip((pageNumber - 1) * productsOnPage).Take(productsOnPage);
-            return productQuery;
+            return productsService.GetProducts(pageNumber, productsOnPage);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult Product(int id)
-        {
-            var product = context.Products.Find(id);
-            if (product == null)
-            {
-                return NotFound("Product is not exist");
-            }
+		[HttpGet("{id}")]
+		public ProductVM Product(int id)
+		{
+			return productsService.GetProductById(id);
+		}
 
-            return Ok(product);
-        }
+		[HttpPost]
+		public int Post([FromBody] ProductInsertVM product)
+		{
+			return productsService.Add(product);
+		}
 
-        [HttpPost]
-        public int Post([FromBody] Product product)
-        {
-            context.Products.Add(product);
-            context.SaveChanges();
-            return product.ProductId;
-        }
+		[HttpPut("{id}")]
+		public IActionResult Put(int id, [FromBody] ProductUpdateVM product)
+		{
+			productsService.Update(new ProductVM
+			{
+				Id = id,
+				ProductName = product.ProductName,
+				CategoryID = product.CategoryID,
+				SupplierID = product.SupplierID,
+				UnitPrice = product.UnitPrice,
+				QuantityPerUnit = product.QuantityPerUnit,
+				UnitsOnOrder = product.UnitsOnOrder,
+				UnitsInStock = product.UnitsInStock,
+				ReorderLevel = product.ReorderLevel,
+				Discontinued = product.Discontinued,
+			});
+			return NoContent();
+		}
 
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] ProductUpdateDto productDTO)
-        {
-            var product = context.Products.Find(id);
-            if (product == null)
-            {
-                return NotFound("Product is not exist");
-            }
-
-            product.ProductName = productDTO.ProductName;
-            product.CategoryID = productDTO.CategoryID;
-            product.SupplierID = productDTO.SupplierID;
-            product.UnitPrice = productDTO.UnitPrice;
-            product.QuantityPerUnit = productDTO.QuantityPerUnit;
-            product.UnitsOnOrder = productDTO.UnitsOnOrder;
-            product.UnitsInStock = productDTO.UnitsInStock;
-            product.ReorderLevel = productDTO.ReorderLevel;
-            product.Discontinued = productDTO.Discontinued;
-            context.SaveChanges();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var product = context.Products.Find(id);
-            if (product == null)
-            {
-                return NotFound("Product is not exist");
-            }
-
-            context.Products.Remove(product);
-            context.SaveChanges();
-            return NoContent();
-        }
-    }
+		[HttpDelete("{id}")]
+		public IActionResult Delete(int id)
+		{
+			productsService.Remove(id);
+			return NoContent();
+		}
+	}
 }

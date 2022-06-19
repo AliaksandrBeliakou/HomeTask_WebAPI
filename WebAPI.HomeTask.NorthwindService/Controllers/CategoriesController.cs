@@ -1,74 +1,53 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebAPI.HomeTask.NorthwindService.Data;
-using WebAPI.HomeTask.NorthwindService.Data.Entities;
-using WebAPI.HomeTask.NorthwindService.DataTransferObjects;
+using WebAPI.HomeTask.NorthwindService.Services.Interfaces;
+using WebAPI.HomeTask.NorthwindService.ViewModels;
 
 namespace WebAPI.HomeTask.NorthwindService.Controllers
 {
-    [Route("api/[controller]")]
+	[Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly NorthwindContext context;
+        private readonly ICategoriesService categoriesService;
 
-        public CategoriesController(NorthwindContext context)
+        public CategoriesController(ICategoriesService categoriesService)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.categoriesService = categoriesService ?? throw new ArgumentNullException(nameof(categoriesService));
         }
 
-        [HttpGet]
-        public IEnumerable<Category> Get()
-        {
-            return context.Categories;
-        }
+		[HttpGet]
+		public IEnumerable<CategoryVM> Get()
+		{
+			return categoriesService.GetCategories();
+		}
 
-        [HttpGet("{id}")]
-        public IActionResult Category(int id)
-        {
-            var category = context.Categories.Find(id);
-            if (category == null)
-            {
-                return NotFound("Category is not exist");
-            }
+		[HttpGet("{id}")]
+		public IActionResult Category(int id)
+		{
+			var category = categoriesService.GetCategory(id);
+			return Ok(category);
+		}
 
-            return Ok(category);
-        }
+		[HttpPost]
+		public int Post([FromBody] CategoryInsertVM category)
+		{
+			return categoriesService.Add(category);
+		}
 
-        [HttpPost]
-        public int Post([FromBody] Category category)
-        {
-            context.Categories.Add(category);
-            context.SaveChanges();
-            return category.CategoryId;
-        }
+		[HttpPut("{id}")]
+		public IActionResult Put(int id, CategoryUpdateVM category)
+		{
 
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] CategoryUpdateDto categoryDTO)
-        {
-            var category = context.Categories.Find(id);
-            if (category == null)
-            {
-                return NotFound("Category is not exist");
-            }
+			categoriesService.Update(new CategoryVM { Id = id, Name = category.Name, Description = category.Description });
+			return NoContent();
+		}
 
-            category.CategoryName = categoryDTO.CategoryName;
-            category.Description = categoryDTO.Description;
-            context.SaveChanges();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var category = context.Categories.Find(id);
-            if (category == null)
-            {
-                return NotFound("Category is not exist");
-            }
-
-            context.Categories.Remove(category);
-            context.SaveChanges();
-            return NoContent();
-        }
-    }
+		[HttpDelete("{id}")]
+		public IActionResult Delete(int id)
+		{
+			categoriesService.Remove(id);
+			return NoContent();
+		}
+	}
 }
